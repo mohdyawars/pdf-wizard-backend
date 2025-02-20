@@ -1,0 +1,6 @@
+venv
+media
+temp
+pdfs
+.idea
+*.pyc
