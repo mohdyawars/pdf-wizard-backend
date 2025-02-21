@@ -1,5 +1,5 @@
 from django.urls import path
-from pdf_tools.views import PDFExtractTextView, PDFExtractImagesView
+from pdf_tools.views import PDFExtractTextView, PDFExtractImagesView, PDFMergeView
 
 urlpatterns = [
     path(
@@ -11,5 +11,10 @@ urlpatterns = [
         "pdfs/extract-images/",
         PDFExtractImagesView.as_view(),
         name="pdf-extract-images",
+    ),
+    path(
+        "pdfs/merge/",
+        PDFMergeView.as_view(),
+        name="pdf-merge",
     ),
 ]

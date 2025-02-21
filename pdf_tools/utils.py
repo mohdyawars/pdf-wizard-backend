@@ -87,3 +87,35 @@ def extract_images_from_pdf(pdf_file):
         }
     except Exception as e:
         raise Exception(f"Error extracting images: {str(e)}")
+
+
+def merge_pdfs(pdf_files):
+    """Merge multiple PDF files into a single PDF file"""
+    try:
+        if not pdf_files:
+            raise ValueError("No PDF files provided for merging.")
+
+        # Save the first uploaded PDF to a temporary file and open it
+        first_pdf = pdf_files[0]
+        first_pdf_path = default_storage.save(
+            gen_temp_file_path(first_pdf.name, "pdf"), first_pdf
+        )
+        merged_pdf = pymupdf.open(default_storage.path(first_pdf_path))
+
+        # Process remaining PDFs
+        for pdf_file in pdf_files[1:]:
+            temp_pdf_path = default_storage.save(
+                gen_temp_file_path(pdf_file.name, "pdf"), pdf_file
+            )
+            new_pdf = pymupdf.open(default_storage.path(temp_pdf_path))
+            merged_pdf.insert_pdf(new_pdf)
+
+        # Generate the final merged PDF file
+        output_file = gen_temp_file_path("merged_pdf", "pdf")
+        merged_pdf.save(default_storage.path(output_file))
+        merged_pdf.close()
+
+        return output_file
+
+    except Exception as e:
+        raise Exception(f"Error merging PDFs: {str(e)}")

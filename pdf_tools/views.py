@@ -8,6 +8,7 @@ from pdf_tools.utils import (
     extract_text_from_pdf,
     extract_images_from_pdf,
     cleanup_temp_file,
+    merge_pdfs,
 )
 
 MAX_PDF_SIZE = settings.MAX_PDF_SIZE
@@ -82,6 +83,56 @@ class PDFExtractImagesView(APIView):
             # Schedule cleanup after response is sent
             for img in result["images"]:
                 cleanup_temp_file(img["media/pdf_images"])
+            return Response({"data": result}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+class PDFMergeView(APIView):
+    """
+    Merge multiple PDF files into a single PDF file
+    Input Format:
+    {
+        "pdfs": [
+            {"file": "file1.pdf"},
+            {"file": "file2.pdf"},
+            ...
+        ]
+    }
+    """
+
+    def post(self, request, *args, **kwargs):
+        """POST method to merge PDF files"""
+        pdf_files = request.FILES.getlist("pdfs")
+
+        # Check if the files are present in the request
+        if not pdf_files:
+            return Response(
+                {"error": "No files uploaded"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Check if the files are PDFs or not
+        for pdf_file in pdf_files:
+            if not pdf_file.name.endswith(".pdf"):
+                return Response(
+                    {"error": "Please upload PDF files"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        # Check if the file size is within the limit
+        for pdf_file in pdf_files:
+            if pdf_file.size > int(MAX_PDF_SIZE):
+                return Response(
+                    {"error": "File size exceeds the limit"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        try:
+            result = merge_pdfs(pdf_files)
             return Response({"data": result}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
