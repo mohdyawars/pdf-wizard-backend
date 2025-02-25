@@ -15,7 +15,7 @@ MAX_PDF_SIZE = settings.MAX_PDF_SIZE
 
 
 class PDFExtractTextView(APIView):
-    """Extract text from a PDF file"""
+    """ Extract text from a PDF file """
 
     def post(self, request, *args, **kwargs):
         pdf_file = request.FILES.get("pdf")
@@ -52,7 +52,7 @@ class PDFExtractTextView(APIView):
 
 
 class PDFExtractImagesView(APIView):
-    """Extract images from a PDF file"""
+    """ Extract images from a PDF file """
 
     def post(self, request, *args, **kwargs):
         pdf_file = request.FILES.get("pdf")
@@ -105,7 +105,7 @@ class PDFMergeView(APIView):
     """
 
     def post(self, request, *args, **kwargs):
-        """POST method to merge PDF files"""
+        """ POST method to merge PDF files """
         pdf_files = request.FILES.getlist("pdfs")
 
         # Check if the files are present in the request
