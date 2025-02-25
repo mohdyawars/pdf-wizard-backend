@@ -1,11 +1,12 @@
-import base64
 import pymupdf
+import os
 import uuid
 
 from datetime import datetime
 
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from django.conf import settings
 
 
 def gen_temp_file_path(prefix, extension):
@@ -62,12 +63,14 @@ def extract_images_from_pdf(pdf_file):
 
                 if base_image:
                     # Generate filename
-                    filename = f"page{page_num + 1}_img{img_index + 1}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{str(uuid.uuid4())[:8]}.{base_image['ext']}"
+                    filename = f"page{page_num + 1}_img{img_index + 1}_{datetime.now().strftime(
+                        '%Y%m%d_%H%M%S')}_{str(uuid.uuid4())[:8]}.{base_image['ext']}"
                     # Full path within media directory
                     file_path = f"pdf_images/{filename}"
 
                     # Save the image
-                    default_storage.save(file_path, ContentFile(base_image["image"]))
+                    default_storage.save(
+                        file_path, ContentFile(base_image["image"]))
 
                     image_data = {
                         "page": page_num + 1,
@@ -95,7 +98,7 @@ def merge_pdfs(pdf_files):
         if not pdf_files:
             raise ValueError("No PDF files provided for merging.")
 
-        # Save the first uploaded PDF to a temporary file and open it
+        # Save the first uploaded PDF to a temporary file
         first_pdf = pdf_files[0]
         first_pdf_path = default_storage.save(
             gen_temp_file_path(first_pdf.name, "pdf"), first_pdf
@@ -110,12 +113,16 @@ def merge_pdfs(pdf_files):
             new_pdf = pymupdf.open(default_storage.path(temp_pdf_path))
             merged_pdf.insert_pdf(new_pdf)
 
-        # Generate the final merged PDF file
-        output_file = gen_temp_file_path("merged_pdf", "pdf")
-        merged_pdf.save(default_storage.path(output_file))
+        # ✅ Save the merged PDF in `MEDIA_ROOT`
+        output_filename = f"merged_pdf_{
+            datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        output_file_path = os.path.join(settings.MEDIA_ROOT, output_filename)
+        merged_pdf.save(output_file_path)
         merged_pdf.close()
 
-        return output_file
+        # ✅ Return the correct media URL
+        media_url = f"{settings.MEDIA_URL}{output_filename}"
+        return media_url  # ✅ Now returning the correct URL
 
     except Exception as e:
         raise Exception(f"Error merging PDFs: {str(e)}")
