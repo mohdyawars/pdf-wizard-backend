@@ -1,4 +1,7 @@
+import os
+
 from django.conf import settings
+from django.core.files.storage import default_storage
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -80,10 +83,18 @@ class PDFExtractImagesView(APIView):
 
         try:
             result = extract_images_from_pdf(pdf_file)
-            # Schedule cleanup after response is sent
+
+            # ✅ Cleanup extracted images after sending the response
             for img in result["images"]:
-                cleanup_temp_file(img["media/pdf_images"])
+                image_path = img["url"].replace(
+                    settings.MEDIA_URL, "")  # Remove /media/ prefix
+                full_path = os.path.join(settings.MEDIA_ROOT, image_path)
+
+                if default_storage.exists(full_path):
+                    default_storage.delete(full_path)
+
             return Response({"data": result}, status=status.HTTP_200_OK)
+
         except Exception as e:
             return Response(
                 {"error": str(e)},
