@@ -42,7 +42,7 @@ pure_eval==0.2.3
 puremagic==1.28
 pydot==3.0.4
 Pygments==2.19.1
-PyMuPDF==1.25.3
+PyMuPDF==1.24.12
 pyparsing==3.2.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1

@@ -62,8 +62,11 @@ def extract_images_from_pdf(pdf_file):
                 base_image = doc.extract_image(xref)
 
                 if base_image:
-                    filename = f"images/page{page_num + 1}_img{img_index + 1}_{datetime.now(
-                    ).strftime('%Y%m%d_%H%M%S')}_{str(uuid.uuid4())[:8]}.{base_image['ext']}"
+                    filename = (
+                        f"images/page{page_num + 1}_img{img_index + 1}_"
+                        f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_"
+                        f"{str(uuid.uuid4())[:8]}.{base_image['ext']}"
+                    )
 
                     saved_path = default_storage.save(
                         filename, ContentFile(base_image["image"]))
@@ -112,8 +115,9 @@ def merge_pdfs(pdf_files):
             merged_pdf.insert_pdf(new_pdf)
 
         # ✅ Save the merged PDF in `MEDIA_ROOT`
-        output_filename = f"merged_pdf_{
-            datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        output_filename = (
+            f"merged_pdf_{datetime.now().strftime('%y%m%d_%h%m%s')}.pdf"
+        )
         output_file_path = os.path.join(settings.MEDIA_ROOT, output_filename)
         merged_pdf.save(output_file_path)
         merged_pdf.close()
