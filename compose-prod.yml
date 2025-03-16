@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+    server:
+          build:
+                  context: .
+                        container_name: pdf-wizard-backend
+                              ports:
+                                      - "8000:8000"
+                                            environment:
+                                                    - DEBUG=False
+                                                            - DJANGO_SETTINGS_MODULE=your_project.settings
+                                                                  volumes:
+                                                                          - .:/app
+                                                                                command: gunicorn your_project.wsgi:application --bind 0.0.0.0:8000
+                                                                                      restart: always
