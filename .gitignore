@@ -5,3 +5,4 @@ temp
 pdfs
 .idea
 *.pyc
+.env
