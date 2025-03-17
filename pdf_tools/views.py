@@ -110,7 +110,6 @@ class PDFMergeView(APIView):
         "pdfs": [
             {"file": "file1.pdf"},
             {"file": "file2.pdf"},
-            ...
         ]
     }
     """
@@ -122,7 +121,7 @@ class PDFMergeView(APIView):
         # Check if the files are present in the request
         if not pdf_files:
             return Response(
-                {"error": "No files uploaded"},
+                {"error": "No files uploaded!"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
