@@ -33,7 +33,7 @@ class PDFExtractTextView(APIView):
         # Check if the file is a PDF or not
         if not pdf_file.name.endswith(".pdf"):
             return Response(
-                {"error": "Please upload a PDF file!!!!!!!!!!!"},
+                {"error": "Please upload a PDF file!"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

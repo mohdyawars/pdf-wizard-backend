@@ -119,6 +119,10 @@ def merge_pdfs(pdf_files):
             f"merged_pdf_{datetime.now().strftime('%y%m%d_%h%m%s')}.pdf"
         )
         output_file_path = os.path.join(settings.MEDIA_ROOT, output_filename)
+
+        print(f"DEBUG: Saving merged PDF to {
+              output_file_path}")  # Log file path
+
         merged_pdf.save(output_file_path)
         merged_pdf.close()
 
