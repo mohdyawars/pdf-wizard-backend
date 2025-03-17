@@ -2,15 +2,15 @@ version: "3.8"
 
 services:
   server:
-    build:
-      context: .
-      container_name: pdf-wizard-backend
-      ports:
-        - "8000:8000"
-      environment:
-        - DEBUG=False
-        - DJANGO_SETTINGS_MODULE=your_project.settings
-      volumes:
-        - .:/app
-      command: gunicorn your_project.wsgi:application --bind 0.0.0.0:8000
-      restart: always
+    build: .
+    container_name: pdf-wizard-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=False
+      - DJANGO_SETTINGS_MODULE=pdfwizard.settings  # Replace with actual settings module
+    volumes:
+      - .:/app
+    command: gunicorn pdfwizard.wsgi:application --bind 0.0.0.0:8000
+    restart: always
+
