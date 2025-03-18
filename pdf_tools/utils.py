@@ -84,6 +84,8 @@ def extract_images_from_pdf(pdf_file):
                     images.append(image_data)
 
         doc.close()
+        print("MEDIA_ROOT:", settings.MEDIA_ROOT)
+        print("Storage exists:", default_storage.exists(saved_path))
         return {
             "status": "success",
             "total_images": len(images),
