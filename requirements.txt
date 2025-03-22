@@ -1,6 +1,8 @@
 acres==0.2.0
 asgiref==3.8.1
 asttokens==3.0.0
+boto3==1.37.15
+botocore==1.37.15
 black==25.1.0
 certifi==2025.1.31
 charset-normalizer==3.4.1
@@ -37,6 +39,7 @@ pexpect==4.9.0
 platformdirs==4.3.6
 prompt_toolkit==3.0.50
 prov==2.0.1
+psycopg2==2.9.10
 ptyprocess==0.7.0
 pure_eval==0.2.3
 puremagic==1.28
