@@ -11,7 +11,7 @@ from pdf_tools.utils.s3_utils import get_file_from_s3
 from pdf_tools.utils.utils import (
     extract_text_from_pdf,
     extract_images_from_pdf,
-    cleanup_temp_file,
+    split_pdf_to_pages,
     merge_pdfs,
 )
 
@@ -96,8 +96,8 @@ class PDFMergeView(APIView):
     """
 
     def post(self, request, *args, **kwargs):
-        """ POST method to merge PDF files """
         pdf_files = request.FILES.getlist("pdfs")
+        """ POST method to merge PDF files """
 
         # Check if the files are present in the request
         if not pdf_files:
@@ -124,6 +124,31 @@ class PDFMergeView(APIView):
 
         try:
             result = merge_pdfs(pdf_files)
+            return Response({"data": result}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+class PDFSplitView(APIView):
+    """Split a PDF file into multiple pages"""
+
+    def post(self, request, *args, **kwargs):
+        pdf_file = request.FILES.get("pdfFile")
+        start_page = request.data.get("startPage")
+        end_page = request.data.get("endPage")
+
+        if not pdf_file:
+            return Response(
+                {"error": "No PDF file provided"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+            
+        try:
+            # output_dir = os.path.join(settings.MEDIA_ROOT)
+            result = split_pdf_to_pages(pdf_file, "output_pages", int(start_page), int(end_page))
             return Response({"data": result}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
