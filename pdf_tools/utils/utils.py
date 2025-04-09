@@ -1,3 +1,4 @@
+import fitz
 import pymupdf
 import os
 import uuid
@@ -84,8 +85,6 @@ def extract_images_from_pdf(pdf_file):
                     images.append(image_data)
 
         doc.close()
-        print("MEDIA_ROOT:", settings.MEDIA_ROOT)
-        print("Storage exists:", default_storage.exists(saved_path))
         return {
             "status": "success",
             "total_images": len(images),
@@ -134,3 +133,48 @@ def merge_pdfs(pdf_files):
 
     except Exception as e:
         raise Exception(f"Error merging PDFs: {str(e)}")
+
+
+def split_pdf_to_pages(pdf_file, output_subdir='output_pages', start_page=1, end_page=None):
+    """Split a PDF file into multiple pages"""
+    try:
+        # This is the actual directory where files will be saved
+        output_dir = os.path.join(settings.MEDIA_ROOT, output_subdir)
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        doc = pymupdf.open(stream=pdf_file.read(), filetype="pdf")
+        if end_page is None:
+            end_page = doc.page_count
+
+        pages = []
+        for page_num in range(start_page - 1, end_page):
+            single_page = pymupdf.open()
+            single_page.insert_pdf(doc, from_page=page_num, to_page=page_num)
+            unique_id = str(uuid.uuid4())[:8]
+
+            filename = f"page_{page_num + 1}_{unique_id}.pdf"
+            output_path = os.path.join(output_dir, filename)
+            print(f"DEBUG: Saving page {page_num + 1} to {output_path}")
+            single_page.save(output_path)
+            single_page.close()
+
+            # Relative path for URL
+            relative_path = os.path.join(output_subdir, filename)
+
+            page_info = {
+                "page_number": page_num + 1,
+                "filename": filename,
+                "path": output_path,
+                "url": f"{settings.MEDIA_URL}{relative_path}",
+            }
+            pages.append(page_info)
+
+        doc.close()
+        return {
+            "status": "success",
+            "total_pages": len(pages),
+            "pages": pages,
+        }
+    except Exception as e:
+        raise Exception(f"Error splitting PDF: {str(e)}")

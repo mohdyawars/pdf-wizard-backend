@@ -6,3 +6,4 @@ pdfs
 .idea
 *.pyc
 .env
+output_pages
