@@ -37,6 +37,7 @@ class PDFExtractTextView(APIView):
 
             result = extract_text_from_pdf(pdf_file)
 
+
             return Response({"data": result}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
@@ -118,6 +119,12 @@ class PDFMergeView(APIView):
                 )
 
         # Check if the file size is within the limit
+        # for pdf_file in pdf_files:
+        #     if pdf_file.size > int(MAX_PDF_SIZE):
+        #         return Response(
+        #             {"error": "File size exceeds the limit"},
+        #             status=status.HTTP_400_BAD_REQUEST,
+        #         )
         # for pdf_file in pdf_files:
         #     if pdf_file.size > int(MAX_PDF_SIZE):
         #         return Response(
