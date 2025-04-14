@@ -2,6 +2,7 @@ import os
 
 from django.conf import settings
 from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -13,7 +14,9 @@ from pdf_tools.utils.utils import (
     extract_images_from_pdf,
     split_pdf_to_pages,
     merge_pdfs,
+    compress_pdf,
 )
+import uuid
 
 
 class PDFExtractTextView(APIView):
@@ -33,6 +36,7 @@ class PDFExtractTextView(APIView):
             pdf_file = get_file_from_s3(file_key)
 
             result = extract_text_from_pdf(pdf_file)
+
 
             return Response({"data": result}, status=status.HTTP_200_OK)
         except Exception as e:
@@ -121,6 +125,12 @@ class PDFMergeView(APIView):
         #             {"error": "File size exceeds the limit"},
         #             status=status.HTTP_400_BAD_REQUEST,
         #         )
+        # for pdf_file in pdf_files:
+        #     if pdf_file.size > int(MAX_PDF_SIZE):
+        #         return Response(
+        #             {"error": "File size exceeds the limit"},
+        #             status=status.HTTP_400_BAD_REQUEST,
+        #         )
 
         try:
             result = merge_pdfs(pdf_files)
@@ -150,6 +160,39 @@ class PDFSplitView(APIView):
             # output_dir = os.path.join(settings.MEDIA_ROOT)
             result = split_pdf_to_pages(pdf_file, "output_pages", int(start_page), int(end_page))
             return Response({"data": result}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+class PDFCompressView(APIView):
+    """Compress a PDF file"""
+
+    def post(self, request, *args, **kwargs):
+        pdf_file = request.FILES.get("pdfFile")
+        compression_level = request.data.get("compressionLevel", "low")
+
+        if not pdf_file:
+            return Response(
+                {"error": "No PDF file provided"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            # Save the uploaded PDF to a temporary location
+            temp_filename = f"temp/{uuid.uuid4()}_{pdf_file.name}"
+            temp_pdf_path = default_storage.save(temp_filename, ContentFile(pdf_file.read()))
+
+            # Compress the PDF and get the URL
+            compressed_url = compress_pdf(default_storage.path(temp_pdf_path), compression_level)
+
+            # Clean up the temporary file
+            default_storage.delete(temp_pdf_path)
+
+            return Response({"data": compressed_url}, status=status.HTTP_200_OK)
+
         except Exception as e:
             return Response(
                 {"error": str(e)},
