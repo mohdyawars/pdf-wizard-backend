@@ -2,6 +2,7 @@ import fitz
 import pymupdf
 import os
 import uuid
+import ghostscript
 
 from datetime import datetime
 
@@ -178,3 +179,64 @@ def split_pdf_to_pages(pdf_file, output_subdir='output_pages', start_page=1, end
         }
     except Exception as e:
         raise Exception(f"Error splitting PDF: {str(e)}")
+
+
+def compress_pdf(input_path, compression_level):
+    """
+    Compress a PDF file using Ghostscript.
+    
+    Args:
+        input_path (str): Path to the input PDF file.
+        compression_level (str): Compression level ('low', 'mid', 'high').
+    
+    Returns:
+        str: URL of the compressed PDF file.
+    """
+    # Define Ghostscript compression settings for each level
+    compression_settings = {
+        'low': '/screen',
+        'mid': '/ebook',
+        'high': '/prepress'
+    }
+
+    # Get the Ghostscript setting for the specified compression level
+    gs_compression = compression_settings.get(compression_level, '/screen')
+
+    # Define the directory and output path for the compressed PDF
+    compressed_dir = os.path.join(settings.MEDIA_ROOT, 'compressed_pdfs')
+    if not os.path.exists(compressed_dir):
+        os.makedirs(compressed_dir)
+
+    output_filename = f"compressed_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4()}.pdf"
+    output_path = os.path.join(compressed_dir, output_filename)
+
+    # Ghostscript command arguments
+    args = [
+        "ps2pdf",  # Ghostscript command
+        "-sDEVICE=pdfwrite",
+        f"-dPDFSETTINGS={gs_compression}",
+        "-dNOPAUSE",
+        "-dQUIET",
+        "-dBATCH",
+        f"-sOutputFile={output_path}",
+        input_path
+    ]
+
+    # Run the Ghostscript command
+    try:
+        # Convert the arguments to the format expected by Ghostscript
+        args = [str(arg).encode('utf-8') for arg in args]
+        ghostscript.Ghostscript(*args)
+        print(f"PDF compressed successfully: {output_path}")
+
+        print(f"Output Filename: {output_filename}")
+        print(f"Output Path: {output_path}")
+        print(f"File size: {os.path.getsize(output_path)} bytes")
+
+        # Return the URL of the compressed PDF and size of the compressed PDF
+        return {
+            "url": f"{settings.MEDIA_URL}compressed_pdfs/{output_filename}".lstrip("/"),
+            "size": os.path.getsize(output_path)
+        }
+    except ghostscript.GhostscriptError as e:
+        raise Exception(f"Error compressing PDF: {str(e)}")

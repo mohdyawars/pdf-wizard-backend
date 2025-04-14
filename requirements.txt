@@ -17,6 +17,7 @@ djangorestframework==3.15.2
 etelemetry==0.3.1
 executing==2.2.0
 filelock==3.17.0
+ghostscript==0.7
 httplib2==0.22.0
 idna==3.10
 ipython==8.32.0

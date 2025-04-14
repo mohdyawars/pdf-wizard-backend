@@ -3,7 +3,8 @@ from pdf_tools.views import (
     PDFExtractTextView,
     PDFExtractImagesView,
     PDFMergeView,
-    PDFSplitView
+    PDFSplitView,
+    PDFCompressView,
 )
 
 urlpatterns = [
@@ -26,5 +27,10 @@ urlpatterns = [
         "pdfs/split/",
         PDFSplitView.as_view(),
         name="pdf-split",
+    ),
+    path(
+        "pdfs/compress/",
+        PDFCompressView.as_view(),
+        name="pdf-compress",
     ),
 ]
